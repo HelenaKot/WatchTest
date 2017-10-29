@@ -6,7 +6,6 @@ import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private TextView mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +23,5 @@ public class MainActivity extends Activity {
     }
 
     private void initLayout() {
-        mTextView = findViewById(R.id.text);
-        Accelerometer a = new Accelerometer(this);
-        a.initWith(mTextView);
     }
 }

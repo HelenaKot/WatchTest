@@ -4,11 +4,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <kot.helena.watchtest.DrawView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <TextView
+        android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:id="@+id/text"
         android:text="; _ ;" />
 
 </FrameLayout>
