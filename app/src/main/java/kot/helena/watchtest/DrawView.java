@@ -4,33 +4,41 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-public class DrawView extends View {
-    private Accelerometer accelerometer;
+import static android.content.Context.SENSOR_SERVICE;
+
+public class DrawView extends View implements SensorEventListener {
     private Paint paint = new Paint();
     private float centerX, centerY;
+    private float movementX, movementY;
+    private float lenght = 6;
 
     public DrawView(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
     public DrawView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public DrawView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
 
-    private void init() {
-        accelerometer = new Accelerometer(getContext());
+    private void init(Context context) {
+        SensorManager sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         paint.setColor(Color.RED);
         final View view = this;
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -46,6 +54,21 @@ public class DrawView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawLine(centerX, centerY, centerX + accelerometer.getX() * 3, centerY + accelerometer.getY() * 3, paint);
+        canvas.drawLine(centerX, centerY, centerX + movementX * -lenght, centerY + movementY * lenght, paint);
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            movementX = sensorEvent.values[0];
+            movementY = sensorEvent.values[1];
+            this.invalidate();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
 }
