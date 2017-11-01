@@ -4,22 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-import static android.content.Context.SENSOR_SERVICE;
-
-public class DrawView extends View implements SensorEventListener {
+public class DrawView extends View implements DrawMotionPresenter.DrawMotionUI {
     private Paint paint = new Paint();
-    private float centerX, centerY;
-    private float movementX, movementY;
-    private float lenght = 6;
+    private DrawMotionPresenter drawMotionPresenter; //todo attach/detach lifecycle
+    private float x, y, r;
 
     public DrawView(Context context) {
         super(context);
@@ -37,16 +30,14 @@ public class DrawView extends View implements SensorEventListener {
     }
 
     private void init(Context context) {
-        SensorManager sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         paint.setColor(Color.RED);
-        final View view = this;
+        final DrawView view = this;
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                centerX = view.getWidth() / 2;
-                centerY = view.getHeight() / 2;
+                drawMotionPresenter = new DrawMotionPresenter(view.getContext(), view.getWidth() / 2, view.getHeight() / 2);
+                drawMotionPresenter.attachUi(view);
             }
         });
     }
@@ -54,21 +45,14 @@ public class DrawView extends View implements SensorEventListener {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawLine(centerX, centerY, centerX + movementX * -lenght, centerY + movementY * lenght, paint);
+        canvas.drawCircle(x, y, r, paint);
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            movementX = sensorEvent.values[0];
-            movementY = sensorEvent.values[1];
-            this.invalidate();
-        }
+    public void updatePosition(float x, float y, float r) {
+        this.x = x;
+        this.y = y;
+        this.r = r;
+        invalidate();
     }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
-
 }
