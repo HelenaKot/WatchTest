@@ -5,6 +5,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import static android.content.Context.SENSOR_SERVICE;
 
@@ -12,14 +14,17 @@ public class DrawMotionPresenter implements SensorEventListener {
     private SensorManager sensorManager;
     private final float centerX, centerY;
     private float translationX, translationY;
-    private final float radious, margin = 20, speed = 1;//todo
+    private final float circleRadius, screenRadius, speedX = -1, speedY = 1;
 
     private DrawMotionUI ui;
 
     DrawMotionPresenter(Context context, float centerX, float centerY) {
         this.centerX = centerX;
         this.centerY = centerY;
-        this.radious = centerX / 2;
+        this.translationX = centerX;
+        this.translationY = centerY;
+        this.circleRadius = centerX / 2;
+        this.screenRadius = centerX;
         sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
     }
 
@@ -35,13 +40,19 @@ public class DrawMotionPresenter implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//            if (inBounds(translationX + sensorEvent.values[0] * speed, translationY + sensorEvent.values[1] * speed)) {
-//                translationX += sensorEvent.values[0] * speed;
-//                translationY += sensorEvent.values[1] * speed;
-//            }
-            ui.updatePosition(translationX, translationY, radious);
+            if (inBounds(centerX - translationX + sensorEvent.values[0] * speedX,
+                    centerY - translationY + sensorEvent.values[1] * speedY)) {
+                updatePositionBy(sensorEvent.values[0] * speedX,  sensorEvent.values[1] * speedY);
+            }
         }
+    }
+
+    private void updatePositionBy(float x, float y) {
+        translationX += x ;
+        translationY += y ;
+        ui.setCirclePosition(translationX, translationY, circleRadius);
     }
 
     @Override
@@ -49,15 +60,17 @@ public class DrawMotionPresenter implements SensorEventListener {
 
     }
 
-    private boolean inBounds(float x, float y) {
-        return length(centerX + x, centerY + y) <= radious + margin;
+    @VisibleForTesting
+    protected boolean inBounds(float x, float y) {
+        return lengthOfOppositeInRectTriangle(x, y) <= screenRadius;
     }
 
-    private float length(float lenX, float lenY) {
+    @VisibleForTesting
+    protected float lengthOfOppositeInRectTriangle(float lenX, float lenY) {
         return (float) Math.sqrt(lenX * lenX + lenY * lenY);
     }
 
     public interface DrawMotionUI {
-        void updatePosition(float x, float y, float r);
+        void setCirclePosition(float x, float y, float r);
     }
 }

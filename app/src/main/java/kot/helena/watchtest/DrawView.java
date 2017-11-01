@@ -49,7 +49,7 @@ public class DrawView extends View implements DrawMotionPresenter.DrawMotionUI {
     }
 
     @Override
-    public void updatePosition(float x, float y, float r) {
+    public void setCirclePosition(float x, float y, float r) {
         this.x = x;
         this.y = y;
         this.r = r;
