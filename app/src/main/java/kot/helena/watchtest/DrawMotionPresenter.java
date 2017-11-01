@@ -13,7 +13,8 @@ public class DrawMotionPresenter implements SensorEventListener {
     private SensorManager sensorManager;
     private final float centerX, centerY;
     private float circleX, circleY, anticipatedX, anticipatedY;
-    private final float circleRadius, screenRadius, speedX = -1, speedY = 1;
+    private final float circleRadius, circleMargin, screenRadius;
+    private final static float SPEED_X = -1, SPEED_Y = 1;
 
     private DrawMotionUI ui;
 
@@ -23,6 +24,7 @@ public class DrawMotionPresenter implements SensorEventListener {
         this.circleX = centerX;
         this.circleY = centerY;
         this.circleRadius = centerX / 2;
+        this.circleMargin = centerX / 10;
         this.screenRadius = centerX;
         sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
     }
@@ -40,8 +42,8 @@ public class DrawMotionPresenter implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            anticipatedX = circleX + sensorEvent.values[0] * speedX;
-            anticipatedY = circleY + sensorEvent.values[1] * speedY;
+            anticipatedX = circleX + sensorEvent.values[0] * SPEED_X;
+            anticipatedY = circleY + sensorEvent.values[1] * SPEED_Y;
             if (inBounds(anticipatedX, anticipatedY)) {
                 updatePosition(anticipatedX, anticipatedY);
             }
@@ -61,7 +63,7 @@ public class DrawMotionPresenter implements SensorEventListener {
 
     @VisibleForTesting
     protected boolean inBounds(float x, float y) {
-        return lengthOfOppositeInRectTriangle(centerX - x, centerY - y) <= screenRadius;
+        return lengthOfOppositeInRectTriangle(centerX - x, centerY - y) <= screenRadius - circleMargin;
     }
 
     @VisibleForTesting
