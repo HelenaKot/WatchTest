@@ -38,10 +38,11 @@ public class DrawMotionPresenterTest {
     }
 
    @Test
-    public void shouldDetectInBounds() {
-        Assert.assertEquals(drawMotionPresenter.inBounds(CENTER_X/2, CENTER_Y/2), true);
-        Assert.assertEquals(drawMotionPresenter.inBounds(CENTER_X - 1, CENTER_Y - 1), true);
-        Assert.assertEquals(drawMotionPresenter.inBounds(CENTER_X + 40, CENTER_Y + 40), false);
-    }
+   public void shouldDetectInBounds() {
+       Assert.assertEquals(drawMotionPresenter.inBounds(CENTER_X / 2, CENTER_Y / 2), true);
+       Assert.assertEquals(drawMotionPresenter.inBounds(CENTER_X, CENTER_Y), true);
+       Assert.assertEquals(drawMotionPresenter.inBounds(CENTER_X * 2 + 1, CENTER_Y * 2 + 1), false);
+       Assert.assertEquals(drawMotionPresenter.inBounds(-1, -1), false);
+   }
 
 }
