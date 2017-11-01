@@ -6,14 +6,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import static android.content.Context.SENSOR_SERVICE;
 
 public class DrawMotionPresenter implements SensorEventListener {
     private SensorManager sensorManager;
     private final float centerX, centerY;
-    private float translationX, translationY;
+    private float circleX, circleY;
     private final float circleRadius, screenRadius, speedX = -1, speedY = 1;
 
     private DrawMotionUI ui;
@@ -21,8 +20,8 @@ public class DrawMotionPresenter implements SensorEventListener {
     DrawMotionPresenter(Context context, float centerX, float centerY) {
         this.centerX = centerX;
         this.centerY = centerY;
-        this.translationX = centerX;
-        this.translationY = centerY;
+        this.circleX = centerX;
+        this.circleY = centerY;
         this.circleRadius = centerX / 2;
         this.screenRadius = centerX;
         sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
@@ -40,19 +39,18 @@ public class DrawMotionPresenter implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            if (inBounds(centerX - translationX + sensorEvent.values[0] * speedX,
-                    centerY - translationY + sensorEvent.values[1] * speedY)) {
+            if (inBounds(centerX - circleX + sensorEvent.values[0] * speedX,
+                    centerY - circleY + sensorEvent.values[1] * speedY)) {
                 updatePositionBy(sensorEvent.values[0] * speedX,  sensorEvent.values[1] * speedY);
             }
         }
     }
 
     private void updatePositionBy(float x, float y) {
-        translationX += x ;
-        translationY += y ;
-        ui.setCirclePosition(translationX, translationY, circleRadius);
+        circleX += x ;
+        circleY += y ;
+        ui.setCirclePosition(circleX, circleY, circleRadius);
     }
 
     @Override
